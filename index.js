@@ -64,6 +64,16 @@ app.delete('/api/persons/:id', (req, res) => {
 
 app.post('/api/persons', (req, res) => {
   const person = req.body
+  if (person.name === undefined || person.name.trim() === "") {
+    return res.status(400).json({error: 'name missing'})
+  }
+  if (person.number === undefined || person.number.trim() === "") {
+    return res.status(400).json({error: 'number missing'})
+  }
+  if (persons.find(p => p.name === person.name)) {
+    return res.status(400).json({error: 'tämän niminen henkilö on jo luettelossa'})
+  }
+
   person.id = Math.floor(Math.random() * 1000000)
   persons = persons.concat(person)
   res.json(person)
