@@ -2,11 +2,13 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
+const cors = require('cors')
 
 morgan.token('body', (req, res) => { return req.body ? JSON.stringify(req.body) : '' })
 
 app.use(bodyParser.json())
 app.use(morgan(':method :url :body :status :res[content-length] - :response-time ms'))
+app.use(cors())
 
 let persons = [
     {
@@ -59,7 +61,6 @@ app.delete('/api/persons/:id', (req, res) => {
   const person = persons.find(p => p.id === id)
   if (person) {
     persons = persons.filter(p => p.id !== id)
-    console.log(persons)
     res.status(204).end()
   } else {
     res.status(404).end()
@@ -80,6 +81,25 @@ app.post('/api/persons', (req, res) => {
 
   person.id = Math.floor(Math.random() * 1000000)
   persons = persons.concat(person)
+  res.json(person)
+})
+
+app.put('/api/persons/:id', (req, res) => {
+  const id = Number(req.params.id)  
+  const person = Object.assign({}, req.body)
+  if (person.name === undefined || person.name.trim() === "") {
+    return res.status(400).json({error: 'name missing'})
+  }
+  if (person.number === undefined || person.number.trim() === "") {
+    return res.status(400).json({error: 'number missing'})
+  }
+  persons = persons.map(p => {
+    if (p.id === id) {
+      person.id = id
+      return person
+    }
+    return p
+  })
   res.json(person)
 })
 
