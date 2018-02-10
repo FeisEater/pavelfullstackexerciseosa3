@@ -3,8 +3,10 @@ const app = express()
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
 
+morgan.token('body', (req, res) => { return req.body ? JSON.stringify(req.body) : '' })
+
 app.use(bodyParser.json())
-app.use(morgan('tiny'))
+app.use(morgan(':method :url :body :status :res[content-length] - :response-time ms'))
 
 let persons = [
     {
@@ -65,7 +67,7 @@ app.delete('/api/persons/:id', (req, res) => {
 })
 
 app.post('/api/persons', (req, res) => {
-  const person = req.body
+  const person = Object.assign({}, req.body)
   if (person.name === undefined || person.name.trim() === "") {
     return res.status(400).json({error: 'name missing'})
   }
