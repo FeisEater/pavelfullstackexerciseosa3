@@ -54,20 +54,30 @@ app.delete('/api/persons/:id', (req, res) => {
 })
 
 app.post('/api/persons', (req, res) => {
-  const person = Object.assign({}, req.body)
-  if (person.name === undefined || person.name.trim() === "") {
+  if (req.body.name === undefined || req.body.name.trim() === "") {
     return res.status(400).json({error: 'name missing'})
   }
-  if (person.number === undefined || person.number.trim() === "") {
+  if (req.body.number === undefined || req.body.number.trim() === "") {
     return res.status(400).json({error: 'number missing'})
   }
-  if (persons.find(p => p.name === person.name)) {
+  /*if (persons.find(p => p.name === person.name)) {
     return res.status(400).json({error: 'tämän niminen henkilö on jo luettelossa'})
-  }
+  }*/
 
-  person.id = Math.floor(Math.random() * 1000000)
-  persons = persons.concat(person)
-  res.json(person)
+  //person.id = Math.floor(Math.random() * 1000000)
+  const person = new Person({
+    name: req.body.name,
+    number: req.body.number
+  })
+
+  person
+  .save()
+  .then(savedPerson => {
+    res.json(Person.format(person))
+  })
+  .catch(error => {
+    console.log(error)
+  })
 })
 
 app.put('/api/persons/:id', (req, res) => {
