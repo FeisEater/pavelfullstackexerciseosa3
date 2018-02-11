@@ -19,14 +19,6 @@ let persons = [
       "id": 1
     }
   ]
-
-const formatPerson = (person) => {
-  return {
-    name: person.name,
-    number: person.number,
-    id: person._id
-  }
-}
   
 app.get('/info', (req, res) => {
   res.send('<p>Puhelinluettelossa ' + persons.length + ' henkilön tiedot</p><p>' + Date() + '</p>')
@@ -36,7 +28,7 @@ app.get('/api/persons', (req, res) => {
   Person
   .find({})
   .then(persons => {
-    res.json(persons.map(formatPerson))
+    res.json(persons.map(Person.format))
   })
 })
 
