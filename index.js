@@ -11,17 +11,13 @@ app.use(bodyParser.json())
 app.use(morgan(':method :url :body :status :res[content-length] - :response-time ms'))
 app.use(cors())
 app.use(express.static('build'))
-
-let persons = [
-    {
-      "name": "Virhe virheinen",
-      "number": "missing no",
-      "id": 1
-    }
-  ]
   
 app.get('/info', (req, res) => {
-  res.send('<p>Puhelinluettelossa ' + persons.length + ' henkilön tiedot</p><p>' + Date() + '</p>')
+  Person
+  .find({})
+  .then(persons => {
+    res.send('<p>Puhelinluettelossa ' + persons.length + ' henkilön tiedot</p><p>' + Date() + '</p>')
+  })
 })
 
 app.get('/api/persons', (req, res) => {
@@ -33,13 +29,15 @@ app.get('/api/persons', (req, res) => {
 })
 
 app.get('/api/persons/:id', (req, res) => {
-  const id = Number(req.params.id)
-  const person = persons.find(p => p.id === id)
-  if (person) {
+  Person
+  .findById(req.params.id)
+  .then(Person.format)
+  .then(person => {
     res.json(person)
-  } else {
-    res.status(404).end()
-  }
+  })
+  .catch(error => {
+    res.status(404).send({error: 'malformatted id'})
+  })
 })
 
 app.delete('/api/persons/:id', (req, res) => {
