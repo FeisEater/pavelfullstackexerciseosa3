@@ -58,24 +58,32 @@ app.post('/api/persons', (req, res) => {
   if (req.body.number === undefined || req.body.number.trim() === "") {
     return res.status(400).json({error: 'number missing'})
   }
-  /*if (persons.find(p => p.name === person.name)) {
-    return res.status(400).json({error: 'tämän niminen henkilö on jo luettelossa'})
-  }*/
 
   const person = new Person({
     name: req.body.name,
     number: req.body.number
   })
 
-  person
-  .save()
-  .then(Person.format)
-  .then(savedPerson => {
-    res.json(savedPerson)
+  Person
+  .find({name: person.name})
+  .then(foundPersons => {
+    if (foundPersons.length <= 0) {
+      person
+      .save()
+      .then(Person.format)
+      .then(savedPerson => {
+        res.json(savedPerson)
+      })
+      .catch(error => {
+        console.log(error)
+        res.status(404).end()
+      })
+    } else {
+      throw true
+    }
   })
   .catch(error => {
-    console.log(error)
-    res.status(404).end()
+    res.status(404).send({error: 'tämän niminen henkilö on jo luettelossa'})
   })
 })
 
