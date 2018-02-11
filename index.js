@@ -3,6 +3,7 @@ const app = express()
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const cors = require('cors')
+const Person = require('./models/person')
 
 morgan.token('body', (req, res) => { return req.body ? JSON.stringify(req.body) : '' })
 
@@ -13,38 +14,30 @@ app.use(express.static('build'))
 
 let persons = [
     {
-      "name": "Arto Hellas",
-      "number": "040-123456",
+      "name": "Virhe virheinen",
+      "number": "missing no",
       "id": 1
-    },
-    {
-      "name": "Martti Tienari",
-      "number": "040-123456",
-      "id": 2
-    },
-    {
-      "name": "Arto Järvinen",
-      "number": "040-123456",
-      "id": 3
-    },
-    {
-      "name": "Lea Kutvonen",
-      "number": "040-123456",
-      "id": 4
-    },
-    {
-      "name": "Mika Mikasson",
-      "number": "040-654321",
-      "id": 5
     }
   ]
 
+const formatPerson = (person) => {
+  return {
+    name: person.name,
+    number: person.number,
+    id: person._id
+  }
+}
+  
 app.get('/info', (req, res) => {
   res.send('<p>Puhelinluettelossa ' + persons.length + ' henkilön tiedot</p><p>' + Date() + '</p>')
 })
 
 app.get('/api/persons', (req, res) => {
-  res.json(persons)
+  Person
+  .find({})
+  .then(persons => {
+    res.json(persons.map(formatPerson))
+  })
 })
 
 app.get('/api/persons/:id', (req, res) => {
