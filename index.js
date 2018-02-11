@@ -82,22 +82,28 @@ app.post('/api/persons', (req, res) => {
 })
 
 app.put('/api/persons/:id', (req, res) => {
-  const id = Number(req.params.id)  
-  const person = Object.assign({}, req.body)
-  if (person.name === undefined || person.name.trim() === "") {
+  if (req.body.name === undefined || req.body.name.trim() === "") {
     return res.status(400).json({error: 'name missing'})
   }
-  if (person.number === undefined || person.number.trim() === "") {
+  if (req.body.number === undefined || req.body.number.trim() === "") {
     return res.status(400).json({error: 'number missing'})
   }
-  persons = persons.map(p => {
-    if (p.id === id) {
-      person.id = id
-      return person
-    }
-    return p
+  
+  const person = {
+    name: req.body.name,
+    number: req.body.number
+  }
+
+  Person
+  .findByIdAndUpdate(req.params.id, person, { new: true } )
+  .then(Person.format)
+  .then(updatedNote => {
+    res.json(updatedNote)
   })
-  res.json(person)
+  .catch(error => {
+    console.log(error)
+    res.status(400).send({ error: 'malformatted id' })
+  })
 })
 
 const PORT = process.env.PORT || 3001
