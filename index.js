@@ -43,14 +43,14 @@ app.get('/api/persons/:id', (req, res) => {
 })
 
 app.delete('/api/persons/:id', (req, res) => {
-  const id = Number(req.params.id)
-  const person = persons.find(p => p.id === id)
-  if (person) {
-    persons = persons.filter(p => p.id !== id)
+  Person
+  .findByIdAndRemove(req.params.id)
+  .then(result => {
     res.status(204).end()
-  } else {
-    res.status(404).end()
-  }  
+  })
+  .catch(error => {
+    res.status(404).send({error: 'malformatted id'})
+  })
 })
 
 app.post('/api/persons', (req, res) => {
@@ -64,7 +64,6 @@ app.post('/api/persons', (req, res) => {
     return res.status(400).json({error: 'tämän niminen henkilö on jo luettelossa'})
   }*/
 
-  //person.id = Math.floor(Math.random() * 1000000)
   const person = new Person({
     name: req.body.name,
     number: req.body.number
@@ -72,11 +71,13 @@ app.post('/api/persons', (req, res) => {
 
   person
   .save()
+  .then(Person.format)
   .then(savedPerson => {
-    res.json(Person.format(person))
+    res.json(savedPerson)
   })
   .catch(error => {
     console.log(error)
+    res.status(404).end()
   })
 })
 
